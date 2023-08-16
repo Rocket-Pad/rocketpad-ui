@@ -1,0 +1,7 @@
+.hero {
+  /* z-index: 0; */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-image: url("../../assets/bg1.svg");
+}
