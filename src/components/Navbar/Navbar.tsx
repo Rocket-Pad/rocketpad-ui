@@ -6,7 +6,7 @@ import WalletModal from "../WalletModal";
 
 function Navbar() {
   const wallet = useWalletProvider();
-  console.log(wallet.chainId, wallet.address);
+  // console.log(wallet.chainId, wallet.address);
   return (
     <div className="flex font-raj py-5 justify-between items-center">
       <img src={logo} />

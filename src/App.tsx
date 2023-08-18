@@ -7,6 +7,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import LaunchPads from "./pages/LaunchPads/LaunchPads";
 import Footer from "./components/Footer/Footer";
 import Presale from "./pages/Presale/Presale";
+import Staking from "./pages/Staking/Staking";
 
 function App() {
   const location = useLocation();
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LaunchPads />} />
         <Route path="/presale" element={<Presale />} />
+        <Route path="/staking" element={<Staking />} />
       </Routes>
       <Footer />
     </div>
