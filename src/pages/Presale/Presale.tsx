@@ -20,8 +20,8 @@ function Presale() {
   return (
     <div className="bg-tertiary pt-7.5 px-4 font-Inter">
       <Navbar />
-      <div className="flex flex-col md:flex-row px-0 md:px-[43px]">
-        <div className="flex flex-col mr-0 md:mr-[24px]">
+      <div className="flex flex-col sm:flex-row px-0 md:px-[43px]">
+        <div className="flex flex-col w-full sm:w-2/5 max-w-[398px] mx-auto">
           <div className="pt-[27px] pb-[69px] px-5.5 mb-7.5 bg-primary rounded-[5px]">
             <div className="flex mb-[53px]">
               <div className="w-1/2">
@@ -116,7 +116,7 @@ function Presale() {
             <div className="bg-secondary/30 h-[1px] mx-auto"></div>
             <div className="mt-5.5">
               <div className="text-lg font-bold mb-4">Website Link</div>
-              <div className="bg-tertiary p-[13.5px] border-[1px] m-0 flex w-fit min-w-[188px] items-center justify-between border-solid rounded border-secondary/40 text-white">
+              <div className="bg-tertiary p-[13.5px] border-[1px] m-0 flex w-full max-w-[188px] items-center justify-between border-solid rounded border-secondary/40 text-white">
                 <div>www.example.com</div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -177,7 +177,7 @@ function Presale() {
             </div>
           </div>
         </div>
-        <div className="pt-[31px] pb-[41px] px-3 bg-primary rounded-[5px]">
+        <div className="w-[90%] sm:w-3/5 pt-[31px] pb-[41px] px-3 ml-0 sm:ml-[24px] mx-auto bg-primary rounded-[5px]">
           <div className="flex mb-[36px]">
             <img src={presaleBanner} alt="Presale Banner" className="w-full" />
           </div>
