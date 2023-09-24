@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "../Navbar/Navbar";
 import rocket from "../../assets/rocket.png";
 import "./hero.css";
+import { Link } from "react-router-dom";
 
 function Hero() {
   return (
@@ -22,9 +23,12 @@ function Hero() {
             consumer Rights experience
           </p>
           <div className="hidden md:flex  md:w-4/5 gap-3">
-            <button className="bg-[#28DBD1] py-4 border-none text-lg font-bold block px-10">
+            <Link
+              to="/create"
+              className="bg-[#28DBD1] py-4 border-none text-lg font-bold block px-10"
+            >
               Submit Project
-            </button>
+            </Link>
             <button className="bg-[#24252E] text-white py-4.5 block text-lg font-bold border-none px-10">
               Learn More
             </button>

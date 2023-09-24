@@ -1,22 +1,204 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 
 import { BiLogoDiscordAlt, BiLogoTwitch, BiLogoTwitter } from "react-icons/bi";
 import presaleBanner from "../../assets/images/presaleBanner.png";
 import presaleBannerSmall from "../../assets/images/presaleBannerMobile.png";
+import { API_ENDPOINT } from "../../constants";
+import { useParams } from "react-router-dom";
+import Countdown from "react-countdown";
+import { useWeb3React } from "@web3-react/core";
+import { usePresaleContract } from "../../hooks/useContracts";
+import { useWalletProvider } from "../../contexts/WalletContext/WalletContext";
+import { parseEther } from "@ethersproject/units";
+import { toast } from "react-toastify";
 
 const initialValue = 0;
 
 function Presale() {
   const [value, setValue] = useState(initialValue);
+  const [isLoading, setLoading] = useState(false);
+  const [amountInvested, setInvested] = useState<number>(0);
+  const [userBalance, setBalance] = useState(0);
+  const [presale, setPresale] = useState<any>();
+  const [details, setDetails] = useState<any>();
+
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+
+  // const [contribution, setContribution] = useState<number>(0);
+
+  const { address } = useParams();
+  const { account, provider } = useWeb3React();
+  const wallet = useWalletProvider();
+  const presaleContract = usePresaleContract(address ?? "");
   const handleChangeValue = (e: any) => {
     setValue(e.target.value);
   };
-  const handleBuy = (e: any) => {
-    e.preventDefault();
-    alert("Successfully made the purchase");
+  const handleBuy = async () => {
+    const toastId = toast.info("Pending approval", { autoClose: false });
+    try {
+      const tx = await presaleContract!.buyTokens({
+        value: parseEther(value.toString()),
+      });
+      toast.update(toastId, { type: "info", render: "Submitting Transaction" });
+      const receipt = await tx.wait();
+      if (receipt.status === 1) {
+        toast.update(toastId, {
+          type: "success",
+          render: "Transaction Successful",
+          autoClose: 5000,
+        });
+      } else {
+        throw { message: "Transaction failed" };
+      }
+    } catch (err: any) {
+      toast.update(toastId, {
+        type: "error",
+        render: err.code ?? err?.message,
+        autoClose: 5000,
+      });
+    }
     setValue(initialValue);
   };
+
+  const handleWithdraw = async () => {
+    setWithdrawing(true);
+    const toastId = toast.info("Pending approval", { autoClose: false });
+    try {
+      const tx = await presaleContract!.finalizePresale({
+        value: parseEther(value.toString()),
+      });
+      toast.update(toastId, { type: "info", render: "Submitting Transaction" });
+      const receipt = await tx.wait();
+      if (receipt.status === 1) {
+        toast.update(toastId, {
+          type: "success",
+          render: "Transaction Successful",
+          autoClose: 5000,
+        });
+      } else {
+        throw { message: "Transaction failed" };
+      }
+    } catch (err: any) {
+      toast.update(toastId, {
+        type: "error",
+        render: err.code ?? err?.message,
+        autoClose: 5000,
+      });
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
+  const handleClaiming = async () => {
+    setClaiming(true);
+    const toastId = toast.info("Pending approval", { autoClose: false });
+    try {
+      const tx = await presaleContract!.claimTokens({
+        value: parseEther(value.toString()),
+      });
+      toast.update(toastId, {
+        type: "info",
+        render: "Submitting Transaction",
+      });
+      const receipt = await tx.wait();
+      if (receipt.status === 1) {
+        toast.update(toastId, {
+          type: "success",
+          render: "Transaction Successful",
+          autoClose: 5000,
+        });
+      } else {
+        throw { message: "Transaction failed" };
+      }
+    } catch (err: any) {
+      toast.update(toastId, {
+        type: "error",
+        render: err.code ?? err?.message,
+        autoClose: 5000,
+      });
+    } finally {
+      setClaiming(false);
+    }
+  };
+
+  const getTotalInvested = async (account: string) => {
+    const amountInvested = await presaleContract!.getAmountInvested(account);
+    setInvested(Number(amountInvested?.toString()));
+  };
+  const fetchSale = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_ENDPOINT}presales/${address}`);
+      const tenetRaised = await presaleContract!.getTotalInvested();
+      // const amountInvested = await presaleContract!.getAmountInvested(account);
+      console.log("raised", tenetRaised);
+      if (res.ok) {
+        const data = await res.json();
+        console.log(data);
+        setPresale({
+          ...data,
+          tenetRaised: tenetRaised,
+          // amountInvested: Number(amountInvested?.toString()),
+        });
+        const metaRes = await fetch(data?.metadataURI);
+        if (metaRes.ok) {
+          let data = await metaRes.json();
+          console.log(data);
+          setDetails(data);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMax = () => {
+    console.log(presale.maxBuy / 10 ** 18);
+    const max =
+      userBalance > 0
+        ? userBalance < presale.maxBuy / 10 ** 18 - amountInvested / 10 ** 18
+          ? userBalance - 0.01
+          : presale.maxBuy / 10 ** 18 - amountInvested / 10 ** 18
+        : 0;
+    setValue(max);
+  };
+  const getBalance = async (address: string) => {
+    try {
+      const balance = await provider?.getBalance(address ?? "");
+      // console.log((await provider?.getBlock())?.timestamp);
+      setBalance(Number((Number(balance?.toString()) / 10 ** 18).toFixed(3)));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  // const fetchDetails = async () => {
+  //   try {
+  //     const res = await fetch(presale?.metadataURI);
+  //     if (res.ok) {
+  //       let data = await res.json();
+  //       console.log(data);
+  //       setDetails(data);
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   } finally {
+  //     // setLoading(false);
+  //   }
+  // };
+  useEffect(() => {
+    if (provider && account) {
+      getBalance(account);
+      getTotalInvested(account);
+    }
+  }, [provider, account]);
+  useEffect(() => {
+    fetchSale();
+    // fetchDetails();
+  }, []);
   return (
     <div className="bg-tertiary pt-7.5 px-4 font-Inter">
       <Navbar />
@@ -26,63 +208,167 @@ function Presale() {
             <div className="flex mb-[53px]">
               <div className="w-1/2">
                 <img
-                  src={presaleBannerSmall}
+                  src={details?.logo}
                   alt="Presale Banner"
                   className="flex w-[calc(100%_-_22px)]"
                 />
               </div>
               <div className="w-1/2">
-                <h1 className="text-[30px]">Assassin</h1>
-                <h2 className="text-lg uppercase">Ass/Tenent</h2>
+                <h1 className="text-[30px]">{details?.name}</h1>
+                <h2 className="text-lg uppercase">{`${details?.symbol}/Tenet`}</h2>
               </div>
             </div>
             <div className="bg-secondary/30 h-[1px] mx-auto"></div>
             <div className="upper">
-              <h3 className="text-base upper">1 Tenet = 120,298 ASN</h3>
+              <h3 className="text-base upper">{`1 Tenet = ${presale?.rate} ${details?.symbol}`}</h3>
               <h4 className="text-sm text-white-50 upper -mt-[11px]">
-                1 ASN = 0.0000 Tenet
+                {/* {`1 ${details?.symbol} = 0.0000 Tenet`} */}
               </h4>
             </div>
             <div className="bg-secondary/30 h-[1px] mx-auto"></div>
-            <div className="font-bold my-5.5 flex justify-between">
-              <div>Sales Ends in</div>
-              <div className="text-secondary">00D 16H 56M 18S</div>
+
+            {presale && (
+              <div className="font-bold my-2 flex justify-between">
+                {Date.now() / 1000 < presale?.startTime ? (
+                  <>
+                    <div>Sale starts in</div>
+                    <Countdown
+                      // zeroPadDays={2}
+                      // zeroPadTime={2}
+                      date={presale?.startTime * 1000}
+                      renderer={({ days, hours, minutes, seconds }) => (
+                        <div className="text-secondary block">
+                          {days}D {hours}H {minutes}M {seconds}S
+                        </div>
+                      )}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div>Sale Ends in</div>
+                    <Countdown
+                      zeroPadDays={2}
+                      zeroPadTime={2}
+                      date={presale?.endTime * 1000 ?? Date.now() + 10000}
+                      renderer={({ days, hours, minutes, seconds }) => (
+                        <div className="text-secondary">
+                          {days}D {hours}H {minutes}M {seconds}S
+                        </div>
+                      )}
+                    />
+                  </>
+                )}
+              </div>
+            )}
+            <div className="font-bold mb-2 flex justify-between">
+              <div>Hard Cap</div>
+              <div>{presale?.hardCap / 10 ** details?.decimals} Tenet</div>
+            </div>
+            <div className="font-bold mb-2 flex justify-between">
+              <div>Contributed</div>
+              <div>{amountInvested / 10 ** details?.decimals} Tenet</div>
             </div>
             <div className="bg-secondary/30 h-[1px] mx-auto"></div>
             <div className="mt-5.5 mb-7.5">
               <div className="text-sm font-bold flex justify-between mb-4">
-                <div>Start TBA</div>
                 <div className="uppercase">
-                  <span className="text-secondary">500</span>/2000 Tenet
+                  <span className="text-secondary">
+                    {Number(presale?.tenetRaised?.toString()) / 10 ** 18 ?? 0}
+                  </span>
+                  /{presale?.hardCap / 10 ** details?.decimals} Tenet
                 </div>
               </div>
               <div className="w-full bg-white rounded-[3px] h-2.5">
-                <div className="bg-secondary h-2.5 rounded-[3px] w-[40%]"></div>
+                <div
+                  className={`bg-secondary h-2.5 rounded-[3px]`}
+                  style={{
+                    width: `${
+                      Number(
+                        Number(presale?.tenetRaised?.toString()) /
+                          presale?.hardCap
+                      ) * 100 ?? 1
+                    }%`,
+                  }}
+                ></div>
               </div>
             </div>
             <div className="bg-secondary/30 h-[1px] mx-auto"></div>
             <div className="mt-5.5">
-              <div className="font-medium mb-2.5">
-                Balance:{" "}
-                <span className="uppercase text-[#C1C7CB]">0 Tenet</span>
-              </div>
-              <form onSubmit={handleBuy} className="flex w-full">
-                <input
-                  type="number"
-                  value={value}
-                  onChange={handleChangeValue}
-                  className="bg-tertiary py-[15px] px-7.5 outline-none border-none w-full"
-                />
-                <span className="flex bg-tertiary items-center justify-center px-[13px] text-white/30">
-                  Max
-                </span>
+              {account ? (
+                account === presale?.owner ? (
+                  <div className="flex gap-2">
+                    <button className="block w-1/2 bg-secondary cursor-pointer py-3 text-center text-tertiary font-Roboto border-none rounded-lg font-bold block">
+                      Fund
+                    </button>
+                    <button
+                      disabled={
+                        presale.endTime > Date.now() / 1000 || withdrawing
+                      }
+                      onClick={handleWithdraw}
+                      className={`block w-1/2 bg-secondary py-3 text-center text-tertiary font-Roboto border-none rounded-lg font-bold block ${
+                        presale.endTime > Date.now() / 1000 || withdrawing
+                          ? "cursor-not-allowed bg-secondary/60"
+                          : "cursor-pointer "
+                      }`}
+                    >
+                      Finalize
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="font-medium mb-2.5">
+                      Balance:{" "}
+                      <span className="uppercase text-[#C1C7CB]">
+                        {userBalance} Tenet
+                      </span>
+                    </div>
+                    {Date.now() / 1000 > presale?.startTime ? (
+                      <form onSubmit={handleBuy} className="flex w-full">
+                        <input
+                          type="number"
+                          value={value}
+                          onChange={handleChangeValue}
+                          className="bg-tertiary text-white py-[15px] px-7.5 outline-none border-none w-full"
+                        />
+                        <span
+                          onClick={handleMax}
+                          className="flex bg-tertiary items-center justify-center px-[13px] text-white/30"
+                        >
+                          Max
+                        </span>
+                        <button
+                          type="submit"
+                          className="bg-secondary text-tertiary font-Roboto border-none px-7.5 font-bold"
+                        >
+                          Buy
+                        </button>
+                      </form>
+                    ) : Date.now() / 1000 > presale?.claimTime &&
+                      amountInvested > 0 ? (
+                      <button
+                        disabled={claiming}
+                        onClick={handleClaiming}
+                        className="bg-secondary cursor-pointer p-5 text-center w-full text-tertiary font-Roboto border-none px-7.5 font-bold block"
+                      >
+                        Claim
+                      </button>
+                    ) : Date.now() / 1000 > presale?.endTime ? (
+                      <div className="text-center">Presale ended</div>
+                    ) : (
+                      <div className="text-center">Presale starts soon</div>
+                    )}
+                  </>
+                )
+              ) : (
                 <button
-                  type="submit"
-                  className="bg-secondary text-tertiary font-Roboto border-none px-7.5 font-bold"
+                  onClick={() => {
+                    wallet.setModalOpen(true);
+                  }}
+                  className="bg-secondary cursor-pointer p-5 text-center w-full text-tertiary font-Roboto border-none px-7.5 font-bold block"
                 >
-                  Buy
+                  Connect Wallet
                 </button>
-              </form>
+              )}
             </div>
           </div>
           <div className="pt-[11px] pb-[41px] px-7 mb-[56px] bg-primary rounded-[5px]">
@@ -117,7 +403,7 @@ function Presale() {
             <div className="mt-5.5">
               <div className="text-lg font-bold mb-4">Website Link</div>
               <div className="bg-tertiary p-[13.5px] border-[1px] m-0 flex w-full max-w-[188px] items-center justify-between border-solid rounded border-secondary/40 text-white">
-                <div>www.example.com</div>
+                <div>{details?.website}</div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="26"
@@ -179,28 +465,15 @@ function Presale() {
         </div>
         <div className="w-[90%] sm:w-3/5 pt-[31px] pb-[41px] px-3 ml-0 sm:ml-[24px] mx-auto bg-primary rounded-[5px]">
           <div className="flex mb-[36px]">
-            <img src={presaleBanner} alt="Presale Banner" className="w-full" />
+            <img
+              src={details?.banner}
+              alt="Presale Banner"
+              className="w-full"
+            />
           </div>
           <div>
             <h3 className="font-bold text-2xl">Project Overview</h3>
-            <p>
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint. Velit officia consequat duis enim velit mollit.
-              Exercitation veniam consequat sunt nostrud amet. Nulla sed ex in
-              magna ullamcorper lacinia. Maecenas maximus sagittis tellus, ac
-              hendrerit ex. Maecenas ut bibendum ex, at luctus velit. Vestibulum
-              sit amet neque odio. Suspendisse nisl odio, accumsan at ante at,
-              ultrices mollis augue. Morbi id lorem elementum, interdum velit
-              eu, pellentesque felis. Morbi tincidunt ultrices felis sed
-              vulputate. Etiam non nisl congue, ultricies augue eget, tristique
-              enim. Praesent fringilla, purus quis congue rutrum, tortor ligula
-              egestas justo, eu venenatis erat tellus ut risus. Nam elit magna,
-              facilisis nec iaculis id Fusce id erat rutrum, dignissim diam
-              eget, finibus odio. Aenean porta lacus suscipit urna luctus
-              luctus. Maecenas ut bibendum ex, at luctus velit. Vestibulum sit
-              amet neque odio Morbi id lorem elementum, interdum velit eu,
-              pellentesque felis.
-            </p>
+            <p>{details?.description}</p>
           </div>
         </div>
       </div>

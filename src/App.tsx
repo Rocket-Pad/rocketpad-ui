@@ -8,6 +8,8 @@ import LaunchPads from "./pages/LaunchPads/LaunchPads";
 import Footer from "./components/Footer/Footer";
 import Presale from "./pages/Presale/Presale";
 import Staking from "./pages/Staking/Staking";
+import Create from "./pages/Create/Create";
+import "react-image-upload/dist/index.css";
 
 function App() {
   const location = useLocation();
@@ -16,8 +18,9 @@ function App() {
     <div className="">
       <Routes>
         <Route path="/" element={<LaunchPads />} />
-        <Route path="/presale" element={<Presale />} />
+        <Route path="/presale/:address" element={<Presale />} />
         <Route path="/staking" element={<Staking />} />
+        <Route path="/create" element={<Create />} />
       </Routes>
       <Footer />
     </div>

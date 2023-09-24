@@ -3,6 +3,7 @@ import logo from "../../assets/logo.png";
 import { useWalletProvider } from "../../contexts/WalletContext/WalletContext";
 import { addressShortner } from "../../utils";
 import WalletModal from "../WalletModal";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   const wallet = useWalletProvider();
@@ -11,18 +12,18 @@ function Navbar() {
     <div className="flex font-raj py-5 justify-between items-center">
       <img src={logo} />
       <div className="flex gap-10 hidden md:flex font-bold text-[16px] text-[#fff]/50">
-        <a href="/" className="text-[#28DBD1]">
+        <Link to="/" className="text-[#28DBD1]">
           Launchpad
-        </a>
-        <a href="/" className="text-[#fff]/50">
+        </Link>
+        <Link to="/" className="text-[#fff]/50">
           Staking
-        </a>
-        <a href="/" className="text-[#fff]/50">
+        </Link>
+        <Link to="/" className="text-[#fff]/50">
           Farming
-        </a>
-        <a href="/" className="text-[#fff]/50">
+        </Link>
+        <Link to="/" className="text-[#fff]/50">
           About
-        </a>
+        </Link>
       </div>
       {wallet?.address ? (
         <div className="bg-secondary text-black font-bold px-6 cursor-pointer flex items-center py-2 rounded-full">
