@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePresaleContract } from "../../../hooks/useContracts";
+import { TailSpin } from "react-loader-spinner";
 
 const PresaleCard = ({ presale }: any) => {
   const [isLoading, setLoading] = useState(false);
@@ -33,7 +34,14 @@ const PresaleCard = ({ presale }: any) => {
     <div className="md:w-[30%] bg-primary font-raj">
       <div className="bg-primary">
         {isLoading ? (
-          <div>loading</div>
+          <div className="flex mt-5">
+            <TailSpin
+              wrapperClass="mx-auto"
+              color="#fff"
+              height={"20px"}
+              width={"20px"}
+            />
+          </div>
         ) : (
           <div className="relative">
             <div className="overflow-y-hidden max-h-[177px]">

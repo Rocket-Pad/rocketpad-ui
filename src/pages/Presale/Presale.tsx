@@ -12,12 +12,13 @@ import { usePresaleContract } from "../../hooks/useContracts";
 import { useWalletProvider } from "../../contexts/WalletContext/WalletContext";
 import { parseEther } from "@ethersproject/units";
 import { toast } from "react-toastify";
+import { TailSpin } from "react-loader-spinner";
 
 const initialValue = 0;
 
 function Presale() {
   const [value, setValue] = useState(initialValue);
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   const [amountInvested, setInvested] = useState<number>(0);
   const [userBalance, setBalance] = useState(0);
   const [presale, setPresale] = useState<any>();
@@ -199,8 +200,24 @@ function Presale() {
     fetchSale();
     // fetchDetails();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="px-4">
+        <Navbar />
+        <div className="flex mt-5 h-[70vh]">
+          <TailSpin
+            wrapperClass="mx-auto"
+            color="#fff"
+            height={"20px"}
+            width={"20px"}
+          />
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="bg-tertiary pt-7.5 px-4 font-Inter">
+    <div className="bg-tertiary px-4 font-Inter">
       <Navbar />
       <div className="flex flex-col sm:flex-row px-0 md:px-[43px]">
         <div className="flex flex-col w-full sm:w-2/5 max-w-[398px] mx-auto">

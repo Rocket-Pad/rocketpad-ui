@@ -16,7 +16,7 @@ function LaunchPads() {
     <div>
       <Hero />
       <div className="pt-10 px-5 md:px-16">
-        <div className="text-center font-bold text-5xl">
+        {/* <div className="text-center font-bold text-5xl">
           Featured project coming soon{" "}
         </div>
         <div className="flex flex-col justify-center mt-10 md:flex-row items-center ">
@@ -25,10 +25,10 @@ function LaunchPads() {
             className="md:-ml-20 w-4/5 md:w-[35%] -mt-10 md:mt-0"
             src={assasinCard}
           />
-        </div>
+        </div> */}
 
         {/* live ptojects */}
-        <div className="font-bold text-2xl mt-10 pt-5">Live Projects</div>
+        <div className="font-bold text-2xl pt-5">Live Projects</div>
         <Presales />
 
         {/* completed projects */}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { API_ENDPOINT } from "../../../constants";
 import PresaleCard from "./PresaleCard";
+import { TailSpin } from "react-loader-spinner";
 
 const Presales = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -23,7 +24,16 @@ const Presales = () => {
     fetchSales();
   }, []);
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex">
+        <TailSpin
+          wrapperClass="mx-auto"
+          color="#fff"
+          height={"50px"}
+          width={"50px"}
+        />
+      </div>
+    );
   }
 
   return (
