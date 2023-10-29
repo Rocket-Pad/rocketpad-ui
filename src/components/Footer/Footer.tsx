@@ -29,8 +29,8 @@ function Footer() {
             <BiLogoTwitch className="text-[24px]" />
           </a>
         </div>
-        </div>
-      <div className="flex py-5 flex-col items-end justify-end h-1/2">
+      </div>
+      <div className="flex py-5 flex-col items-end justify-end items-center h-1/2">
         Rocketpad © 2023 | All Rights Reserved
       </div>
     </div>
