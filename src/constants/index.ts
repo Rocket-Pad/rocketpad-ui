@@ -2,7 +2,7 @@ export const defaultChainId = 155;
 const LIVE = import.meta.env.VITE_APP_LIVE === "true";
 
 export const factoryAddresses = {
-  155: "0x86Dd6f0eeA9b65b8610ff1F0c59290746B80798E",
+  155: "0xF58cc30ad21c3Bdbc094922d2C839Cc2283E0160",
 };
 
 export const API_ENDPOINT = LIVE
