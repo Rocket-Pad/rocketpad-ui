@@ -41,9 +41,13 @@ const Create = () => {
   };
 
   const FormChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     if (name === "address") {
       setAddress(value);
+    }
+    if (type === "checkbox") {
+      setFormDetails((form) => ({ ...form, [name]: checked }));
+      return;
     }
     setFormDetails((form) => ({ ...form, [name]: value }));
   };
@@ -75,6 +79,8 @@ const Create = () => {
       hardCap,
       softCap,
       withdrawalDelay,
+      autoListing,
+      liquidity,
     } = formDetails;
     setLoading(true);
     const toastId = toast.info("Creating Presale ...", { autoClose: false });
@@ -112,6 +118,8 @@ const Create = () => {
         parseEther(hardCap),
         parseEther(softCap),
         new Date(withdrawalDelay).getTime() / 1000,
+        autoListing,
+        autoListing ? liquidity ?? 0 : 0,
         { value: parseEther("0.01") }
       );
       toast.update(toastId, {
@@ -479,9 +487,52 @@ const Create = () => {
           }}
           className="text-secondary"
         >
-          6. Finalize
+          6. Listing
         </h2>
         <div className={`${formSection != 6 ? "hidden" : "block"}`}>
+          <div className="flex gap-3">
+            <input type="checkbox" onChange={FormChange} name="autoListing" />
+            <div>Auto Listing</div>
+          </div>
+          {formDetails.autoListing && (
+            <div className="mt-3">
+              <p>Liquidity Percentage</p>
+              <input
+                className="input h-5 p-2 min-w-[200px] mt-1 rounded-lg"
+                onChange={FormChange}
+                name="liquidity"
+                type="number"
+                max={100}
+                min={0}
+              ></input>
+            </div>
+          )}
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={previous}
+              className="bg-secondary cursor-pointer block border-0 py-2 px-6 rounded-lg font-bold text-lg"
+            >
+              Back
+            </button>
+            <button
+              onClick={next}
+              className="bg-secondary cursor-pointer block border-0 py-2 px-6 rounded-lg font-bold text-lg"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2
+          onClick={() => {
+            setSection(7);
+          }}
+          className="text-secondary"
+        >
+          7. Finalize
+        </h2>
+        <div className={`${formSection != 7 ? "hidden" : "block"}`}>
           <div></div>
           <div>
             {/* <p>Presale End Time</p>
