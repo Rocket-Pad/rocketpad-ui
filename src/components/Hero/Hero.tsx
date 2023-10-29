@@ -22,20 +22,20 @@ function Hero() {
             discover new collectibles while preserving the protective Web2
             consumer Rights experience
           </p>
-          <div className="hidden md:flex  md:w-4/5 gap-3">
+          <div className="flex flex-col md:flex-row  md:w-4/5 gap-3">
             <Link
               to="/create"
-              className="bg-[#28DBD1] py-4 border-none text-lg font-bold block px-10"
+              className="bg-[#28DBD1] text-center py-4 border-none text-lg font-bold block px-10"
             >
               Submit Project
             </Link>
-            <button className="bg-[#24252E] text-white py-4.5 block text-lg font-bold border-none px-10">
+            <button className="bg-[#24252E] text-center text-white py-4 block text-lg font-bold border-none px-10">
               Learn More
             </button>
           </div>
         </div>
         <div className="hidden md:block">
-          <div className="overflow-hidden max-h-[400px]">
+          <div className="overflow-hidden md:max-h-[400px]">
             <img className="block w-4/5" src={rocket} />
           </div>
         </div>
