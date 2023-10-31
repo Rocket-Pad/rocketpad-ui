@@ -32,12 +32,12 @@ function WalletModal({
               className="bg-primary items-center flex p-3 gap-3 rounded-lg cursor-pointer"
             >
               <img
-                src={window?.ethereum.isMetaMask ? metamask : injected}
+                src={window?.ethereum?.isMetaMask ? metamask : injected}
                 className="w-[40px] h-[40px]"
               />
               <div>
                 <div className="font-bold">
-                  {window?.ethereum.isMetaMask ? "Metamask" : "Injected"}
+                  {window?.ethereum?.isMetaMask ? "Metamask" : "Injected"}
                 </div>
                 <div className="font-sm text-sm">Connect</div>
               </div>
